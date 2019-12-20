@@ -10,14 +10,14 @@ import javafx.collections.ObservableList;
 
 /** Group class that represents a user created group. */
 public final class Group {
-    private String name = "";
-    private String description;
-    private String admin;
-    private String tags[];
+  private String name = "";
+  private String description;
+  private String admin;
+  private String tags[];
 
-    private DAO dao = new DAO();
-    private Connection conn = null;
-    private PreparedStatement ps = null;
+  private DAO dao = new DAO();
+  private Connection conn = null;
+  private PreparedStatement ps = null;
 
   /** No argument constructor. */
   public Group() {}
@@ -56,16 +56,16 @@ public final class Group {
       ps.setString(1, description);
       ps.setString(2, groupName);
 
-        ps.execute();
+      ps.execute();
 
-        ps.close();
-        conn.close();
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
+      ps.close();
+      conn.close();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+  }
 
   /**
    * Method to retrieve all tags from a group.
@@ -96,33 +96,35 @@ public final class Group {
         ps.setString(2, description);
         ps.setString(3, user_admin);
 
-            ps.execute();
+        ps.execute();
 
-            for(int i = 0; i < tags.length; i++){
-                ps = conn.prepareStatement("INSERT INTO TAGS(GROUP_NAME, TAG) VALUES(?, ?)");
-                ps.setString(1, name);
-                ps.setString(2, tags[i]);
-                ps.execute();
-            }
-            /* add admin to group**/
-            User user = new User();
-            user.joinGroup(this);
-
-            ps = conn.prepareStatement("INSERT INTO EVENTS(NAME, DESCRIPTION, GROUP_NAME, DATE) VALUES(?,?,?,?)");
-            ps.setString(1, "");
-            ps.setString(2, "");
-            ps.setString(3, name);
-            ps.setString(4, "");
-            ps.execute();
-
-            ps.close();
-            conn.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        for (int i = 0; i < tags.length; i++) {
+          ps = conn.prepareStatement("INSERT INTO TAGS(GROUP_NAME, TAG) VALUES(?, ?)");
+          ps.setString(1, name);
+          ps.setString(2, tags[i]);
+          ps.execute();
         }
-    }
+        /* add admin to group**/
+        User user = new User();
+        user.joinGroup(this);
+
+        ps =
+            conn.prepareStatement(
+                "INSERT INTO EVENTS(NAME, DESCRIPTION, GROUP_NAME, DATE) VALUES(?,?,?,?)");
+        ps.setString(1, "");
+        ps.setString(2, "");
+        ps.setString(3, name);
+        ps.setString(4, "");
+        ps.execute();
+
+        ps.close();
+        conn.close();
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+  }
 
   /**
    * Method to retrieve all groups from the database.
@@ -159,25 +161,25 @@ public final class Group {
         ps.setString(1, groupName);
         ps.execute();
 
-            ps = conn.prepareStatement("DELETE FROM TAGS WHERE GROUP_NAME=?");
-            ps.setString(1, groupName);
-            ps.execute();
+        ps = conn.prepareStatement("DELETE FROM TAGS WHERE GROUP_NAME=?");
+        ps.setString(1, groupName);
+        ps.execute();
 
-            conn.close();
-            ps.close();
-          } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-          }
-          // delete posts, events (not yet), tags, reports
-            Post p = new Post();
-            p.deleteAllPostsFromGroup(groupName);
+        conn.close();
+        ps.close();
+      } catch (SQLException | ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+      // delete posts, events (not yet), tags, reports
+      Post p = new Post();
+      p.deleteAllPostsFromGroup(groupName);
 
-            Report.removeAllReportsFromGroup(groupName);
+      Report.removeAllReportsFromGroup(groupName);
 
-            User u = new User();
-            u.deleteAllUsersFromGroup(groupName);
-        }
+      User u = new User();
+      u.deleteAllUsersFromGroup(groupName);
     }
+  }
 
   /**
    * Method to search the database for the user's search terms.
@@ -191,16 +193,16 @@ public final class Group {
       ps = conn.prepareStatement("SELECT NAME, DESCRIPTION FROM GROUPS WHERE NAME LIKE ?");
       ps.setString(1, search.concat("%"));
 
-            ResultSet rs = ps.executeQuery();
+      ResultSet rs = ps.executeQuery();
 
-            return rs;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+      return rs;
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+    return null;
+  }
 
   /**
    * Method to check the database to see if a group exists with the same name.
@@ -215,18 +217,18 @@ public final class Group {
       ps = conn.prepareStatement("SELECT * FROM GROUPS WHERE NAME=?");
       ps.setString(1, group);
 
-            ResultSet rs = ps.executeQuery();
-            exists = rs.next();
+      ResultSet rs = ps.executeQuery();
+      exists = rs.next();
 
-            ps.close();
-            conn.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return exists;
+      ps.close();
+      conn.close();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+    return exists;
+  }
 
   /**
    * Retrieves the group names where this user is an admin.
@@ -243,14 +245,14 @@ public final class Group {
       ps = conn.prepareStatement(SQL);
       ResultSet rs = ps.executeQuery();
 
-            return rs;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+      return rs;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return null;
+  }
 
   /**
    * Retrieves the name of the user that is the admin of a specified group.
@@ -266,18 +268,18 @@ public final class Group {
       ps = conn.prepareStatement("SELECT USER_ADMIN FROM GROUPS WHERE NAME=?");
       ps.setString(1, name);
 
-            rs = ps.executeQuery();
+      rs = ps.executeQuery();
 
-            while (rs.next()) {
-                admin = rs.getString(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return admin;
+      while (rs.next()) {
+        admin = rs.getString(1);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return admin;
+  }
 
   /**
    * Retrieves the description of a specified group.
@@ -293,18 +295,18 @@ public final class Group {
       ps = conn.prepareStatement("SELECT DESCRIPTION FROM GROUPS WHERE NAME=?");
       ps.setString(1, groupName);
 
-            rs = ps.executeQuery();
+      rs = ps.executeQuery();
 
-            while (rs.next()) {
-                desc = rs.getString(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return desc;
+      while (rs.next()) {
+        desc = rs.getString(1);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return desc;
+  }
 
   /**
    * Retrieves all users from a specified group.
@@ -321,19 +323,19 @@ public final class Group {
       ps = conn.prepareStatement("SELECT USER_ID FROM USERS_GROUPS WHERE GROUP_ID=?");
       ps.setString(1, groupName);
 
-            rs = ps.executeQuery();
+      rs = ps.executeQuery();
 
-            while (rs.next()) {
-                String username = rs.getString(1);
-                userList.add(username);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return userList;
+      while (rs.next()) {
+        String username = rs.getString(1);
+        userList.add(username);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return userList;
+  }
 
   /**
    * Method to search the database for groups that contain any of the specified tags.
@@ -355,42 +357,39 @@ public final class Group {
                 + tag[j]
                 + "' and t.GROUP_NAME = g.NAME ");
 
-                ps = conn.prepareStatement(SQL);
-                ResultSet rs = ps.executeQuery();
+      ps = conn.prepareStatement(SQL);
+      ResultSet rs = ps.executeQuery();
 
-                return rs;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            return null;
+      return rs;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return null;
+  }
 
-    public ObservableList<String> wildCardTagSearch(String tag){
-            if(tag.equals(""))
-                return null;
-        try {
-            conn = dao.getConnection();
-            String SQL = "SELECT TAG FROM  TAGS  WHERE TAG LIKE ?";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, tag.concat("%"));
+  public ObservableList<String> wildCardTagSearch(String tag) {
+    if (tag.equals("")) return null;
+    try {
+      conn = dao.getConnection();
+      String SQL = "SELECT TAG FROM  TAGS  WHERE TAG LIKE ?";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, tag.concat("%"));
 
+      ResultSet rs = ps.executeQuery();
+      ObservableList<String> tags = FXCollections.observableArrayList();
 
-            ResultSet rs = ps.executeQuery();
-            ObservableList<String> tags = FXCollections.observableArrayList();
+      while (rs.next()) tags.add(rs.getString(1));
 
-            while(rs.next())
-            tags.add(rs.getString(1));
-
-            return tags;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+      return tags;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return null;
+  }
 
   /**
    * Method to remove a specified member from a specified group.
@@ -405,16 +404,16 @@ public final class Group {
       ps.setString(1, username);
       ps.setString(2, groupName);
 
-            ps.execute();
+      ps.execute();
 
-            conn.close();
-            ps.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+      conn.close();
+      ps.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+  }
 
   /**
    * Method to check if a specified user is in a specified group.
@@ -430,21 +429,21 @@ public final class Group {
       ps.setString(1, username);
       ps.setString(2, groupName);
 
-            ResultSet rs = ps.executeQuery();
+      ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                return true;
-            }
+      while (rs.next()) {
+        return true;
+      }
 
-            conn.close();
-            ps.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
+      conn.close();
+      ps.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return false;
+  }
 
   /**
    * Method to update the group tags of the specified group.
@@ -456,21 +455,21 @@ public final class Group {
     // remove all tags before adding new ones
     this.removeAllTags(groupName);
 
-      for (String s : tags) {
-          try {
-              conn = dao.getConnection();
-              ps = conn.prepareStatement("INSERT INTO TAGS(GROUP_NAME, TAG) VALUES(?, ?)");
-              ps.setString(1, groupName);
-              ps.setString(2, s);
+    for (String s : tags) {
+      try {
+        conn = dao.getConnection();
+        ps = conn.prepareStatement("INSERT INTO TAGS(GROUP_NAME, TAG) VALUES(?, ?)");
+        ps.setString(1, groupName);
+        ps.setString(2, s);
 
-              ps.execute();
+        ps.execute();
 
-              conn.close();
-              ps.close();
-          } catch (SQLException | ClassNotFoundException e) {
-              e.printStackTrace();
-          }
+        conn.close();
+        ps.close();
+      } catch (SQLException | ClassNotFoundException e) {
+        e.printStackTrace();
       }
+    }
   }
 
   /**
@@ -484,245 +483,241 @@ public final class Group {
       ps = conn.prepareStatement("DELETE FROM TAGS WHERE GROUP_NAME=?");
       ps.setString(1, groupName);
 
-            ps.execute();
+      ps.execute();
 
-            conn.close();
-            ps.close();
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+      conn.close();
+      ps.close();
+    } catch (SQLException | ClassNotFoundException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * Method to set a groups event description.
-     *
-     * @param groupName The group name to edit event for.
-     * @param description event description.
-     */
-    public void setEventDescription(String description, String groupName) {
-        try {
-            conn = dao.getConnection();
-            ps = conn.prepareStatement("UPDATE EVENTS SET DESCRIPTION=? WHERE GROUP_NAME=?");
-            ps.setString(1, description);
-            ps.setString(2, groupName);
+  /**
+   * Method to set a groups event description.
+   *
+   * @param groupName The group name to edit event for.
+   * @param description event description.
+   */
+  public void setEventDescription(String description, String groupName) {
+    try {
+      conn = dao.getConnection();
+      ps = conn.prepareStatement("UPDATE EVENTS SET DESCRIPTION=? WHERE GROUP_NAME=?");
+      ps.setString(1, description);
+      ps.setString(2, groupName);
 
-            ps.execute();
+      ps.execute();
 
-            ps.close();
-            conn.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+      ps.close();
+      conn.close();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * Method to set a groups event title.
-     *
-     * @param groupName The group name to edit event for.
-     * @param title event title.
-     */
-    public void setEventTitle(String title, String groupName) {
-        try {
-            conn = dao.getConnection();
-            ps = conn.prepareStatement("UPDATE EVENTS SET NAME=? WHERE GROUP_NAME=?");
-            ps.setString(1, title);
-            ps.setString(2, groupName);
+  /**
+   * Method to set a groups event title.
+   *
+   * @param groupName The group name to edit event for.
+   * @param title event title.
+   */
+  public void setEventTitle(String title, String groupName) {
+    try {
+      conn = dao.getConnection();
+      ps = conn.prepareStatement("UPDATE EVENTS SET NAME=? WHERE GROUP_NAME=?");
+      ps.setString(1, title);
+      ps.setString(2, groupName);
 
-            ps.execute();
+      ps.execute();
 
-            ps.close();
-            conn.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+      ps.close();
+      conn.close();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * Method to set a groups event date.
-     *
-     * @param groupName The group name to edit event for.
-     * @param date event date.
-     */
-    public void setEventDate(String date, String groupName) {
-        try {
-            conn = dao.getConnection();
-            ps = conn.prepareStatement("UPDATE EVENTS SET DATE=? WHERE GROUP_NAME=?");
-            ps.setString(1, date);
-            ps.setString(2, groupName);
+  /**
+   * Method to set a groups event date.
+   *
+   * @param groupName The group name to edit event for.
+   * @param date event date.
+   */
+  public void setEventDate(String date, String groupName) {
+    try {
+      conn = dao.getConnection();
+      ps = conn.prepareStatement("UPDATE EVENTS SET DATE=? WHERE GROUP_NAME=?");
+      ps.setString(1, date);
+      ps.setString(2, groupName);
 
-            ps.execute();
+      ps.execute();
 
-            ps.close();
-            conn.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+      ps.close();
+      conn.close();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * Method to return a groups event title.
-     *
-     * @param groupName The group name to get data from.
-     * @return A string of the groups event title.
-     */
-    public String getEventTitle(String groupName){
-       String title = "";
-        try {
-            conn = dao.getConnection();
-            String SQL = "SELECT NAME FROM EVENTS  WHERE GROUP_NAME=?";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, groupName);
-            ResultSet rs = ps.executeQuery();
+  /**
+   * Method to return a groups event title.
+   *
+   * @param groupName The group name to get data from.
+   * @return A string of the groups event title.
+   */
+  public String getEventTitle(String groupName) {
+    String title = "";
+    try {
+      conn = dao.getConnection();
+      String SQL = "SELECT NAME FROM EVENTS  WHERE GROUP_NAME=?";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, groupName);
+      ResultSet rs = ps.executeQuery();
 
-
-            while (rs.next()) {
-            System.out.println(rs.getString(1));
-            title = rs.getString(1);
-                }
-            return title;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return title;
+      while (rs.next()) {
+        System.out.println(rs.getString(1));
+        title = rs.getString(1);
+      }
+      return title;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return title;
+  }
 
-    /**
-     * Method to return a groups event Description.
-     *
-     * @param groupName The group name to get data from.
-     * @return A string of the groups event description.
-     */
-    public String getEventDescription(String groupName){
-        String desc = "";
-        try {
-            conn = dao.getConnection();
-            String SQL = "SELECT DESCRIPTION FROM EVENTS  WHERE GROUP_NAME=?";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, groupName);
-            ResultSet rs = ps.executeQuery();
+  /**
+   * Method to return a groups event Description.
+   *
+   * @param groupName The group name to get data from.
+   * @return A string of the groups event description.
+   */
+  public String getEventDescription(String groupName) {
+    String desc = "";
+    try {
+      conn = dao.getConnection();
+      String SQL = "SELECT DESCRIPTION FROM EVENTS  WHERE GROUP_NAME=?";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, groupName);
+      ResultSet rs = ps.executeQuery();
 
-            while(rs.next())
-            desc = rs.getString(1);
-            return desc;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return desc;
+      while (rs.next()) desc = rs.getString(1);
+      return desc;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return desc;
+  }
 
-    /**
-     * Method to return a groups event Date.
-     *
-     * @param groupName The group name to get data from.
-     * @return A string of the groups event date.
-     */
-    public String getEventDate(String groupName){
-        String date = "";
-        try {
-            conn = dao.getConnection();
-            String SQL = "SELECT DATE FROM EVENTS  WHERE GROUP_NAME=?";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, groupName);
-            ResultSet rs = ps.executeQuery();
+  /**
+   * Method to return a groups event Date.
+   *
+   * @param groupName The group name to get data from.
+   * @return A string of the groups event date.
+   */
+  public String getEventDate(String groupName) {
+    String date = "";
+    try {
+      conn = dao.getConnection();
+      String SQL = "SELECT DATE FROM EVENTS  WHERE GROUP_NAME=?";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, groupName);
+      ResultSet rs = ps.executeQuery();
 
-            while(rs.next())
-            date = rs.getString(1);
-            return date;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return date;
+      while (rs.next()) date = rs.getString(1);
+      return date;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return date;
+  }
 
-    /**
-     * Method to RSVP a user to an event.
-     *
-     * @param group The group name to rsvp to
-     */
-    public void setRSVP(String group){
-        try {
-            conn = dao.getConnection();
-            String SQL = "INSERT INTO USER_EVENTS(USERNAME, GROUPNAME) VALUES(?, ?)";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, Session.getInstance("").getUserName());
-            ps.setString(2, group);
+  /**
+   * Method to RSVP a user to an event.
+   *
+   * @param group The group name to rsvp to
+   */
+  public void setRSVP(String group) {
+    try {
+      conn = dao.getConnection();
+      String SQL = "INSERT INTO USER_EVENTS(USERNAME, GROUPNAME) VALUES(?, ?)";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, Session.getInstance("").getUserName());
+      ps.setString(2, group);
 
-            ps.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+      ps.execute();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * Method to check if a user is RSVP to an event.
-     *
-     * @param group The group name to check rsvp to
-     * @param user The user to check rsvp for
-     * @return A boolean if a user is RSVP'd
-     */
-    public boolean isRSVP(String group, String user){
-        try {
-            conn = dao.getConnection();
-            String SQL = "SELECT * from USER_EVENTS where GROUPNAME = ? and USERNAME = ?";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, group);
-            ps.setString(2, user);
+  /**
+   * Method to check if a user is RSVP to an event.
+   *
+   * @param group The group name to check rsvp to
+   * @param user The user to check rsvp for
+   * @return A boolean if a user is RSVP'd
+   */
+  public boolean isRSVP(String group, String user) {
+    try {
+      conn = dao.getConnection();
+      String SQL = "SELECT * from USER_EVENTS where GROUPNAME = ? and USERNAME = ?";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, group);
+      ps.setString(2, user);
 
-            ResultSet rs = ps.executeQuery();
+      ResultSet rs = ps.executeQuery();
 
-            while (rs.next())
-                return true;
+      while (rs.next()) return true;
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return false;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+    return false;
+  }
 
-    /**
-     * Method to remove a users RSVP froma n event.
-     *
-     * @param groupName The group name to rsvp to
-     */
-    public void removeRSVP(String groupName) {
-        try {
-            conn = dao.getConnection();
-            String SQL = "DELETE FROM USER_EVENTS Where USERNAME = ? and GROUPNAME = ?";
-            ps = conn.prepareStatement(SQL);
-            ps.setString(1, Session.getInstance("").getUserName());
-            ps.setString(2, groupName);
+  /**
+   * Method to remove a users RSVP froma n event.
+   *
+   * @param groupName The group name to rsvp to
+   */
+  public void removeRSVP(String groupName) {
+    try {
+      conn = dao.getConnection();
+      String SQL = "DELETE FROM USER_EVENTS Where USERNAME = ? and GROUPNAME = ?";
+      ps = conn.prepareStatement(SQL);
+      ps.setString(1, Session.getInstance("").getUserName());
+      ps.setString(2, groupName);
 
-            ps.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+      ps.execute();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
     }
+  }
 
-    /**
-     * Method to return the name of the group.
-     *
-     * @return A string of the group name.
-     */
-    @Override
-    public String toString() {
-        return name;
-    }
+  /**
+   * Method to return the name of the group.
+   *
+   * @return A string of the group name.
+   */
+  @Override
+  public String toString() {
+    return name;
+  }
 }

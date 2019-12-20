@@ -1,6 +1,6 @@
 package groupu.controller;
 
-import  groupu.model.User;
+import groupu.model.User;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,12 +8,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-/***
- *facilitates the gui for the Register page
- *
- * @author ds-91
- * **/
 
+/** Controller class that handles the logic for registering a new user. */
 public class RegisterController {
 
   private static final int minUsernameSize = 3;
@@ -25,19 +21,16 @@ public class RegisterController {
   @FXML private TextField txtUsername;
   @FXML private TextField txtPassword;
 
-  /***
-   *Register a user and check for valid information
-   */
+  /** Method that is called when clicking the register button. */
   public void actionRegister() {
     User u = new User();
     Alert alert;
-    /*
-     * when you set up your user name
-     */
+
     boolean exists = u.checkUserExists(txtUsername.getText());
 
     if (!exists) {
-      if (txtUsername.getLength() >= minUsernameSize && txtUsername.getLength() <= maxUsernameSize) {
+      if (txtUsername.getLength() >= minUsernameSize
+          && txtUsername.getLength() <= maxUsernameSize) {
         if (txtPassword.getLength() >= minPassSize && txtPassword.getLength() <= maxPassSize) {
           if (!txtUsername.getText().contains(" ")) {
             if (!txtPassword.getText().contains(" ")) {
@@ -63,17 +56,15 @@ public class RegisterController {
         alert = new Alert(AlertType.ERROR);
         alert.setContentText("Username must between 3 and 20!");
         alert.show();
-        }
-      } else {
-        alert = new Alert(AlertType.ERROR);
-        alert.setContentText("Username already exists!");
-        alert.show();
+      }
+    } else {
+      alert = new Alert(AlertType.ERROR);
+      alert.setContentText("Username already exists!");
+      alert.show();
     }
   }
 
-  /***
-   * bring user back to login screen
-   */
+  /** Method that transitions to the previous scene (login). */
   public void actionBack() {
     Utilities.nextScene(btnBack, "login", "Login");
   }

@@ -10,25 +10,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../h2/bin/h2-1.4.199.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://C:/Program Files (x86)/H2/bin/h2-1.4.199.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/jfoenix-8.0.8.jar!/" />
+          <root url="jar://$MODULE_DIR$/../oop/h2/bin/h2-1.4.199.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

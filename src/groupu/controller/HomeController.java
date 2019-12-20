@@ -25,268 +25,257 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
-/***
- *THis produces the gui for the home screen
+/**
+ * * THis produces the gui for the home screen
+ *
  * @author markopetrovic239
- * @author ds-91
- * **/
-public class HomeController{
+ * @author ds-91 *
+ */
+public class HomeController {
 
-    static String GroupSelect;
+  static String GroupSelect;
 
-    @FXML private TextField txtSearchGroups;
-    @FXML private TextField txtTag;
-    @FXML private Button btnInfo;
-    @FXML private Button btnCreateGroup;
-    @FXML private Button btnLogout;
-    @FXML private Button btnSendMessage;
-    @FXML private Button btnDeleteMessage;
-    @FXML private TextField txtMessageTo;
-    @FXML private TextField txtReplyText;
-    @FXML private TextArea txtMessageBody;
-    @FXML private TableView tableview;
-    @FXML private TableColumn colName;
-    @FXML private TableColumn colDescription;
-    @FXML private ListView listviewAdmin;
-    @FXML private ListView listviewJoined;
-    @FXML private ListView listMessageList;
-    @FXML private ListView listMessageConversation;
-    @FXML private ListView listFriendsList;
-    @FXML private HBox tagBox1;
+  @FXML private TextField txtSearchGroups;
+  @FXML private TextField txtTag;
+  @FXML private Button btnInfo;
+  @FXML private Button btnCreateGroup;
+  @FXML private Button btnLogout;
+  @FXML private Button btnSendMessage;
+  @FXML private Button btnDeleteMessage;
+  @FXML private TextField txtMessageTo;
+  @FXML private TextField txtReplyText;
+  @FXML private TextArea txtMessageBody;
+  @FXML private TableView tableview;
+  @FXML private TableColumn colName;
+  @FXML private TableColumn colDescription;
+  @FXML private ListView listviewAdmin;
+  @FXML private ListView listviewJoined;
+  @FXML private ListView listMessageList;
+  @FXML private ListView listMessageConversation;
+  @FXML private ListView listFriendsList;
+  @FXML private HBox tagBox1;
 
+  private ObservableList<ObservableList> TableViewData;
+  private ObservableList<String> messageFromList;
+  private ObservableList<String> messageBodyList;
+  private Object select;
+  private String[] tags = new String[10];
+  private int tagCount = 0;
 
-
-    private ObservableList<ObservableList> TableViewData;
-    private ObservableList<String> messageFromList;
-    private ObservableList<String> messageBodyList;
-    private Object select;
-    private String[] tags = new String[10];
-    private int tagCount = 0;
-
-    private Group group = new Group();
-    private ResultSet allGroups = group.getGroups();
-
+  private Group group = new Group();
+  private ResultSet allGroups = group.getGroups();
 
   @FXML
-    void initialize()
-    {
-      updateGroupTable(allGroups);
-      updateFriendsList();
-      updateMessageList();
-      updateMyGroupsTables();
+  void initialize() {
+    updateGroupTable(allGroups);
+    updateFriendsList();
+    updateMessageList();
+    updateMyGroupsTables();
 
-      setupPlaceholders();
-      setupFriendsListContextMenu();
-      setupTextFieldListeners();
-      setupGroupSelectListeners();
-      setupGroupContextMenu();
-
-    }
-
-  /***
-   *creates menu for setup group
-   */
-    public void setupGroupContextMenu() {
-      ContextMenu cmUser = new ContextMenu();
-      MenuItem itemLeaveGroup = new MenuItem("Leave Group");
-      cmUser.getItems().add(itemLeaveGroup);
-      listviewJoined.setContextMenu(cmUser);
-
-      itemLeaveGroup.setOnAction(
-          event -> {
-            String selectedGroup = null;
-            try {
-              selectedGroup = listviewJoined.getSelectionModel().getSelectedItem().toString();
-            } catch (NullPointerException e) {
-              System.out.println("no group selected");
-            }
-            group.removeMember(Session.getInstance("").getUserName(), selectedGroup);
-            updateMyGroupsTables();
-          });
-      }
-
-  /***
-   * admin use of group
-   */
-  private void setupGroupSelectListeners() {
-      /* owned groups listener**/
-      listviewAdmin.getSelectionModel().getSelectedItem();
-      listviewAdmin.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-        @Override
-        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-          if(newValue!=null) {
-            select = newValue;
-            listviewJoined.getSelectionModel().select(null);
-          }
-        }
-      });
-      /***
-       *
-       * joined groups listener
-       **/
-      listviewJoined.getSelectionModel().getSelectedItem() ;
-      listviewJoined.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-        @Override
-        /***
-         *admin usage only
-         */
-        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-          if(newValue!=null) {
-            select = newValue;
-            listviewAdmin.getSelectionModel().clearSelection();
-          }
-        }
-      });
-      /***
-       *  Tableview listener, Selects the entire row instead of 1 cell
-       *  **/
-      ObservableList<TablePosition> selectedCells = tableview.getSelectionModel().getSelectedCells() ;
-      selectedCells.addListener((ListChangeListener.Change<? extends TablePosition> change) -> {
-        if (selectedCells.size() > 0) {
-          TablePosition selectedCell = selectedCells.get(0);
-          int rowIndex = selectedCell.getRow();
-          select = colName.getCellObservableValue(rowIndex).getValue();
-        }
-      });
+    setupPlaceholders();
+    setupFriendsListContextMenu();
+    setupTextFieldListeners();
+    setupGroupSelectListeners();
+    setupGroupContextMenu();
   }
 
-  /***
-   *
-   * setup text field for searching groups
+  /** Method to create context menus for right clicking and choosing to leave the selected group. */
+  public void setupGroupContextMenu() {
+    ContextMenu cmUser = new ContextMenu();
+    MenuItem itemLeaveGroup = new MenuItem("Leave Group");
+    cmUser.getItems().add(itemLeaveGroup);
+    listviewJoined.setContextMenu(cmUser);
+
+    itemLeaveGroup.setOnAction(
+        event -> {
+          String selectedGroup = null;
+          try {
+            selectedGroup = listviewJoined.getSelectionModel().getSelectedItem().toString();
+          } catch (NullPointerException e) {
+            System.out.println("no group selected");
+          }
+          group.removeMember(Session.getInstance("").getUserName(), selectedGroup);
+          updateMyGroupsTables();
+        });
+  }
+
+  /** Method to set up ChangeListeners when selecting a group from the groups list. */
+  private void setupGroupSelectListeners() {
+    listviewAdmin.getSelectionModel().getSelectedItem();
+    listviewAdmin
+        .getSelectionModel()
+        .selectedItemProperty()
+        .addListener(
+            new ChangeListener<String>() {
+              @Override
+              public void changed(
+                  ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue != null) {
+                  select = newValue;
+                  listviewJoined.getSelectionModel().select(null);
+                }
+              }
+            });
+
+    listviewJoined.getSelectionModel().getSelectedItem();
+    listviewJoined
+        .getSelectionModel()
+        .selectedItemProperty()
+        .addListener(
+            new ChangeListener<String>() {
+              @Override
+              public void changed(
+                  ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue != null) {
+                  select = newValue;
+                  listviewAdmin.getSelectionModel().clearSelection();
+                }
+              }
+            });
+    ObservableList<TablePosition> selectedCells = tableview.getSelectionModel().getSelectedCells();
+    selectedCells.addListener(
+        (ListChangeListener.Change<? extends TablePosition> change) -> {
+          if (selectedCells.size() > 0) {
+            TablePosition selectedCell = selectedCells.get(0);
+            int rowIndex = selectedCell.getRow();
+            select = colName.getCellObservableValue(rowIndex).getValue();
+          }
+        });
+  }
+
+  /**
+   * Method to set up textfield listeners on the search textfield to respond when Enter is pressed.
    */
   private void setupTextFieldListeners() {
-
     String[] tags = new String[20];
-      txtSearchGroups.setOnKeyPressed(event -> {
-      if (event.getCode() == KeyCode.ENTER) {
-        actionSearch();
-        txtSearchGroups.clear();
-      }
-    });
+    txtSearchGroups.setOnKeyPressed(
+        event -> {
+          if (event.getCode() == KeyCode.ENTER) {
+            actionSearch();
+            txtSearchGroups.clear();
+          }
+        });
 
-
-      txtTag.setOnKeyPressed(event -> {
-        if(event.getCode() == KeyCode.ENTER){
-          actionTagSearch();
-          txtTag.clear();
-        }
-      });
+    txtTag.setOnKeyPressed(
+        event -> {
+          if (event.getCode() == KeyCode.ENTER) {
+            actionTagSearch();
+            txtTag.clear();
+          }
+        });
   }
 
-  /***
-   *
-   * place holders for member ,admin ,messages and list
-   */
+  /** Method that sets up placeholder text for empty listviews on the home page. */
   public void setupPlaceholders() {
-      listviewJoined.setPlaceholder(new Label("No content"));
-      listviewAdmin.setPlaceholder(new Label("No content"));
-      listMessageConversation.setPlaceholder(new Label("No content"));
-      listMessageList.setPlaceholder(new Label("No content"));
-      listFriendsList.setPlaceholder(new Label("No content"));
-    }
+    listviewJoined.setPlaceholder(new Label("No content"));
+    listviewAdmin.setPlaceholder(new Label("No content"));
+    listMessageConversation.setPlaceholder(new Label("No content"));
+    listMessageList.setPlaceholder(new Label("No content"));
+    listFriendsList.setPlaceholder(new Label("No content"));
+  }
 
-  /***
-   * Updates friend list
-   **/
-    public void updateFriendsList() {
-      Friend f = new Friend();
-      ObservableList<String> friends = FXCollections.observableArrayList();
-      ArrayList<String> friendsList = f.getFriends();
+  /** Method that updates friends list. Used when adding or removing friends. */
+  public void updateFriendsList() {
+    Friend f = new Friend();
+    ObservableList<String> friends = FXCollections.observableArrayList();
+    ArrayList<String> friendsList = f.getFriends();
 
-      friends.addAll(friendsList);
+    friends.addAll(friendsList);
 
-      listFriendsList.setItems(friends);
-    }
+    listFriendsList.setItems(friends);
+  }
 
-  /***
-   * update messages
+  /** Method that updates message list that is used when receiving or sending a message. */
+  public void updateMessageList() {
+    Message m = new Message();
+    messageFromList = FXCollections.observableArrayList();
+    Set<String> userSet = new LinkedHashSet<String>();
+    ArrayList<String> messages = m.getAllMessagesFromUsers();
+
+    userSet.addAll(messages);
+    messageFromList.addAll(userSet);
+
+    listMessageList.setItems(messageFromList);
+  }
+
+  /**
+   * Method that populates the conversation textview when user clicks on a friend if they have
+   * messages.
    */
-    public void updateMessageList() {
-      Message m = new Message();
-      messageFromList = FXCollections.observableArrayList();
-      Set<String> userSet = new LinkedHashSet<String>();
-      ArrayList<String> messages = m.getAllMessagesFromUsers();
+  public void actionMessagesClicked() {
+    Message m = new Message();
+    ArrayList<String> messages = new ArrayList<String>();
+    try {
+      String clickedUser = listMessageList.getSelectionModel().getSelectedItem().toString();
+      messageBodyList = m.getMessagesFromUser(clickedUser);
 
-      userSet.addAll(messages);
-      messageFromList.addAll(userSet);
-
-      listMessageList.setItems(messageFromList);
+      listMessageConversation.setItems(messageBodyList);
+    } catch (NullPointerException e) {
+      e.printStackTrace();
     }
+  }
 
-  /***
-   * creates the messages array
-   */
-    public void actionMessagesClicked() {
-      Message m = new Message();
-      ArrayList<String> messages = new ArrayList<String>();
-      try {
-        String clickedUser = listMessageList.getSelectionModel().getSelectedItem().toString();
-        messageBodyList = m.getMessagesFromUser(clickedUser);
+  /** Method to update the list of groups the current user has created. */
+  public void updateMyGroupsTables() {
+    User user = new User();
 
-        listMessageConversation.setItems(messageBodyList);
-      } catch (NullPointerException e) {
-        e.printStackTrace();
+    try {
+      ResultSet rsUserGroups = group.getUserGroups();
+      listviewAdmin.getItems().clear();
+      while (rsUserGroups.next()) {
+        String current = rsUserGroups.getString("name");
+        ObservableList<String> list = FXCollections.observableArrayList(current);
+        listviewAdmin.getItems().addAll(list);
       }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.out.println("Error on Building user groups table");
     }
+    // Data added to joined group list
+    try {
+      ResultSet rUserGroups = user.getJoinedGroups();
+      listviewJoined.getItems().clear();
+      while (rUserGroups.next()) {
+        String current2 = rUserGroups.getString("name");
+        ObservableList<String> list2 = FXCollections.observableArrayList(current2);
+        listviewJoined.getItems().addAll(list2);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.out.println("Error on Building user groups table");
+    }
+  }
 
-  /***
-   * updates group tables
+  /**
+   * Method that updates the users group table of their joined groups.
+   *
+   * @param rsGroups ResultSet of the users joined groups.
    */
-    public void updateMyGroupsTables()
-    {
-      User user = new User();
-
-        // Data added to users group list **/
-        try {
-          ResultSet rsUserGroups = group.getUserGroups();
-          listviewAdmin.getItems().clear();
-          while (rsUserGroups.next()) {
-            String current = rsUserGroups.getString("name");
-            ObservableList<String> list = FXCollections.observableArrayList(current);
-            listviewAdmin.getItems().addAll(list);
-          }
-        } catch (SQLException e) {
-          e.printStackTrace();
-            System.out.println("Error on Building user groups table");
-        }
-        // Data added to joined group list **/
-        try {
-          ResultSet rUserGroups = user.getJoinedGroups();
-          listviewJoined.getItems().clear();
-          while (rUserGroups.next()) {
-            String current2 = rUserGroups.getString("name");
-            ObservableList<String> list2 = FXCollections.observableArrayList(current2);
-            listviewJoined.getItems().addAll(list2);
-          }
-        } catch (SQLException e) {
-          e.printStackTrace();
-          System.out.println("Error on Building user groups table");
-        }
-    }
-
-    /** *********************************************************************************
-     * @param rsGroups ResultSet of groups.
-     * Populates the group table from the given ResultSet, adds listener if initializing
-     * **********************************************************************************/
   private void updateGroupTable(ResultSet rsGroups) {
     // Populating TableView from ResultSet
     TableViewData = FXCollections.observableArrayList();
     try {
-      colName.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-          return new SimpleStringProperty(param.getValue().get(0).toString());
-        }
-      });
-      colDescription.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-          return new SimpleStringProperty(param.getValue().get(1).toString());
-        }
-      });
+      colName.setCellValueFactory(
+          new Callback<
+              TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
+            public ObservableValue<String> call(
+                TableColumn.CellDataFeatures<ObservableList, String> param) {
+              return new SimpleStringProperty(param.getValue().get(0).toString());
+            }
+          });
+      colDescription.setCellValueFactory(
+          new Callback<
+              TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
+            public ObservableValue<String> call(
+                TableColumn.CellDataFeatures<ObservableList, String> param) {
+              return new SimpleStringProperty(param.getValue().get(1).toString());
+            }
+          });
       while (rsGroups.next()) {
-        //Iterate Row
+        // Iterate Row
         ObservableList<String> row = FXCollections.observableArrayList();
         for (int i = 1; i <= rsGroups.getMetaData().getColumnCount(); i++) {
-          //Iterate Column
+          // Iterate Column
           row.add(rsGroups.getString(i));
         }
         TableViewData.add(row);
@@ -298,57 +287,48 @@ public class HomeController{
     }
   }
 
-  // open creategroup.fxml
-
-  /***
-   *Action of creating the group
+  /**
+   * Method called when user clicks to create a new group. Opens up the scene to input group
+   * details.
    */
   public void actionCreateGroup() {
     Utilities.nextScene(btnCreateGroup, "creategroup", "Create New Group");
   }
 
-  /***open group
-   *
+  /**
+   * Method called when user wants to view group information. Uses the selected group in the table
+   * and sends the user to that groups scene.
    */
   public void actionOpenGroup() {
-    if(select != null) {
+    if (select != null) {
       GroupSelect = select.toString();
       System.out.println("view group pressed" + GroupSelect);
       Utilities.nextScene(btnInfo, "group", GroupSelect);
     }
   }
 
-  /***
-   * opens groups
-   */
+  /** Method called when users opens one of their created groups. */
   public void actionOpenUserGroups() {
     System.out.println("view group pressed");
-    if(select != null) {
+    if (select != null) {
       GroupSelect = select.toString();
       Utilities.nextScene(btnInfo, "group", GroupSelect);
     }
   }
 
-  /***
-   * allows you to searh for groups
-   */
+  /** Method called when user searches for a group based on text. */
   public void actionSearch() {
     ResultSet rsGroups = group.getSearch(txtSearchGroups.getText());
     updateGroupTable(rsGroups);
-
   }
 
-  /***
-   * lets you log out of your account
-   */
+  /** Method called when user clicks the log out button. */
   public void actionLogout() {
     Session.getInstance("").cleanUserSession();
     Utilities.nextScene(btnLogout, "login", "Login");
   }
 
-  /***
-   * ability to send messages
-   */
+  /** Method called when sending a message to another user. */
   public void actionSendMessage() {
     User u = new User();
     String toUser = txtMessageTo.getText();
@@ -378,9 +358,7 @@ public class HomeController{
     }
   }
 
-  /***
-   * so you can delete messages
-   */
+  /** Method to delete a conversation with another user from the home page. */
   public void actionDeleteMessage() {
     String username = getSelectedFromConversationList();
     Message m = new Message(username, null);
@@ -390,9 +368,7 @@ public class HomeController{
     listMessageConversation.getItems().clear();
   }
 
-  /***
-   * For replying to messages
-   */
+  /** Method to reply to a message from another user. */
   public void actionReply() {
     String toUser = listMessageList.getSelectionModel().getSelectedItem().toString();
     String body = txtReplyText.getText();
@@ -416,9 +392,7 @@ public class HomeController{
     }
   }
 
-  /***
-   * removing friends
-   */
+  /** Method called when removing a friend from users friends list. */
   public void actionRemoveFriend() {
     String username = getSelectedFromFriendsList();
     if (username != null) {
@@ -429,9 +403,7 @@ public class HomeController{
     }
   }
 
-  /***
-   * setter friends list
-   */
+  /** Method that sets up the context menu for friends list. */
   public void setupFriendsListContextMenu() {
     ContextMenu cm = new ContextMenu();
     MenuItem itemRemoveFriend = new MenuItem("Remove Friend");
@@ -441,12 +413,13 @@ public class HomeController{
     itemRemoveFriend.setOnAction(
         event -> {
           actionRemoveFriend();
-    });
+        });
   }
 
-  /***
-   * getter for friends list
-   * @return List of friends
+  /**
+   * Method that gets the selected friend from friends list.
+   *
+   * @return The selected friend from the friends listview.
    */
   public String getSelectedFromFriendsList() {
     try {
@@ -456,9 +429,10 @@ public class HomeController{
     }
   }
 
-  /***
-   *getter for conversation list
-   * @return List of messages
+  /**
+   * Method that gets the selected conversation from conversation list.
+   *
+   * @return The selected conversation from the listview.
    */
   public String getSelectedFromConversationList() {
     try {
@@ -468,36 +442,32 @@ public class HomeController{
     }
   }
 
-  /***
-   * Method to search for groups by tag.
-   */
+  /** Method called to search for groups by search tags on the home page. */
   public void actionTagSearch() {
-    if(tagCount<10) {
+    if (tagCount < 10) {
       tags[tagCount] = txtTag.getText();
 
       Button btn = new Button(txtTag.getText());
       btn.setBackground(Background.EMPTY);
       btn.setOpacity(tagCount + 1);
-      btn.setOnMouseClicked(new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent t) {
-          tags[(int)btn.getOpacity() - 1] = "null";
-          tagBox1.getChildren().remove(btn);
-          tagCount--;
-          System.out.println(tagCount);
-          ResultSet tagSearch = group.tagSearch(tags);
-          if(tagSearch != null)
-            updateGroupTable(tagSearch);
-          if(tagCount == 0)
-            updateGroupTable(group.getGroups());
-        }
-      });
+      btn.setOnMouseClicked(
+          new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent t) {
+              tags[(int) btn.getOpacity() - 1] = "null";
+              tagBox1.getChildren().remove(btn);
+              tagCount--;
+              System.out.println(tagCount);
+              ResultSet tagSearch = group.tagSearch(tags);
+              if (tagSearch != null) updateGroupTable(tagSearch);
+              if (tagCount == 0) updateGroupTable(group.getGroups());
+            }
+          });
 
       tagBox1.getChildren().add(btn);
 
       ResultSet tagSearch = group.tagSearch(tags);
-        if(tagSearch != null)
-        updateGroupTable(tagSearch);
+      if (tagSearch != null) updateGroupTable(tagSearch);
 
       tagCount++;
       txtTag.clear();

@@ -10,7 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 
-/** * Class for the Login view. */
+/** Controller class that handles the logic for logging in. */
 public class LoginController {
 
   private User userStore;
@@ -32,10 +32,7 @@ public class LoginController {
         });
   }
 
-  /**
-   * * Method when login button is pressed.
-   *
-   */
+  /** Method that handles the user trying to log in. */
   public void actionLogin() {
     Alert alert;
 

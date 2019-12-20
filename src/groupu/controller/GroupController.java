@@ -7,8 +7,6 @@ import groupu.model.Post;
 import groupu.model.Report;
 import groupu.model.Session;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import groupu.model.User;
@@ -26,10 +24,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 
-/***
- *  @author markopetrovic239
-  * @author ds-91
- * all java fx stuff for GUI
+/**
+ * Controller that handles the logic for group management.
+ *
+ * @author markopetrovic239
+ * @author ds-91
  */
 public class GroupController {
 
@@ -68,10 +67,7 @@ public class GroupController {
   private Group g = new Group();
   private Post p = new Post();
 
-  /**
-   *sets the group with all place holders
-   * and "updates"
-   */
+  /** */
   @FXML
   public void initialize() {
     groupName = HomeController.GroupSelect;
@@ -87,32 +83,26 @@ public class GroupController {
     updateEventInfo();
   }
 
-  /**
-   *initialize the RSVP list and checkbox
-   */
-  public void setupRSVPList(){
-    if(!g.isUserInGroup(Session.getInstance("").getUserName(), groupName)){
+  /** initialize the RSVP list and checkbox */
+  public void setupRSVPList() {
+    if (!g.isUserInGroup(Session.getInstance("").getUserName(), groupName)) {
       chkRSVP.setDisable(true);
     }
-    if(g.isRSVP(groupName, Session.getInstance("").getUserName())){
+    if (g.isRSVP(groupName, Session.getInstance("").getUserName())) {
       chkRSVP.setSelected(true);
     }
 
     ObservableList<String> RSVPlist = FXCollections.observableArrayList();
     ObservableList<String> userList = g.getAllUsers(groupName);
 
-    for(int i= 0; i<userList.size(); i++){
-      if(g.isRSVP(groupName, userList.get(i)))
-        RSVPlist.add(userList.get(i));
+    for (int i = 0; i < userList.size(); i++) {
+      if (g.isRSVP(groupName, userList.get(i))) RSVPlist.add(userList.get(i));
     }
 
     listRSVP.setItems(RSVPlist);
   }
 
-  /***
-   * Holds placeholders for
-   * member list,posts and the reports
-   */
+  /** Method to set placeholder text for empty list views. */
   public void setupPlaceholders() {
     listMemberListUser.setPlaceholder(new Label("No content"));
     listMemberList.setPlaceholder(new Label("No content"));
@@ -121,18 +111,14 @@ public class GroupController {
     listRSVP.setPlaceholder(new Label("No content"));
   }
 
-  /***
-   * Updates Event info
-   */
+  /** Method to update the event information labels with the current event. */
   public void updateEventInfo() {
     labelEventName.setText(g.getEventTitle(HomeController.GroupSelect));
     labelEventDescription.setText(g.getEventDescription(HomeController.GroupSelect));
     labelEventDate.setText(g.getEventDate(HomeController.GroupSelect));
   }
 
-  /***
-   *updates memeber list for users in groups
-   */
+  /** Method that updates the listview of the currently joined members. */
   public void updateUserMemberList() {
     setupMessageContextMenu();
 
@@ -140,10 +126,7 @@ public class GroupController {
     listMemberListUser.setItems(userMemberList);
   }
 
-  /***
-   *
-   *Updates the report list
-   */
+  /** Method that populates the reports listview with all of the current reports. */
   public void updateListOfReports() {
     ObservableList<String> reportList = Report.getAllGroupReports(groupName);
     listReportList.setItems(reportList);
@@ -168,22 +151,19 @@ public class GroupController {
     }
   }
 
+  /** Method that populates the member listview with all current joined members. */
   public void updateListOfUsers() {
     ObservableList<String> userList = g.getAllUsers(groupName);
     listMemberList.setItems(userList);
   }
 
-  /***
-   * label for group name
-   */
+  /** Method that updates the labels for group name and group description on the group home page. */
   public void updateGroupInfo() {
     labelGroupName.setText(groupName);
     labelGroupDescription.setText(g.getGroupDescription(groupName));
   }
 
-  /***
-   *updates posts
-   */
+  /** Method that updates the list of all posts on the group home page. */
   public void updateListOfPosts() {
     setupPostContextMenu();
 
@@ -195,9 +175,7 @@ public class GroupController {
     listPosts.setItems(posts);
   }
 
-  /***
-   *sets up messaging to members
-   */
+  /** Method that sets up the context menu (right click) for the member list listview. */
   public void setupMessageContextMenu() {
     ContextMenu cm = new ContextMenu();
     MenuItem itemSendMessage = new MenuItem("Send Message");
@@ -284,8 +262,9 @@ public class GroupController {
         });
   }
 
-  /***
-   *creates menu for the group posts
+  /**
+   * Method that sets up the context menu (right click) for the list of posts on the group home
+   * page.
    */
   public void setupPostContextMenu() {
     if (Session.getInstance("").getUserName().equals(g.getGroupAdmin(groupName))) {
@@ -302,7 +281,6 @@ public class GroupController {
             String poster = selectionText[0];
             String data = selectionText[1];
 
-
             Post post = new Post(data, poster, groupName);
             post.deletePost();
 
@@ -312,12 +290,8 @@ public class GroupController {
     }
   }
 
-  /***
-   * @param actionEvent
-   * sets up event in gui
-   *
-   */
-  public void actionPost(ActionEvent actionEvent) {
+  /** Method called when a user tries to post a message to the group. */
+  public void actionPost() {
     if (txtPostBody.getText().length() > 0 && txtPostBody.getText().length() <= 300) {
       String poster = Session.getInstance("").getUserName();
       String data = txtPostBody.getText();
@@ -330,31 +304,23 @@ public class GroupController {
     }
   }
 
-  /***
-   *sets up join group in gui
-   */
+  /** Method called when user tries to join a group. */
   public void actionJoinGroup() {
     User user = new User();
     Group group = new Group(groupName);
 
-    /**admin cannot join group**/
     if (!group.getGroupAdmin(group.toString()).equals(Session.getInstance("").getUserName())) {
       user.joinGroup(group);
-
     }
     chkRSVP.setDisable(false);
     updateTabsAndButtons();
   }
 
-  /***
-   *event part in group gui
-   */
+  /** Method called when a user reports a group. */
   public void actionReportGroup() {
     Alert alert;
     Report r;
-/***
- * sets up the reporting message for the user
- */
+
     TextInputDialog input = new TextInputDialog();
     input.setTitle("Report Group");
     input.setHeaderText("Please enter your report");
@@ -378,17 +344,12 @@ public class GroupController {
     }
   }
 
-  /***
-   *sets up event
-   */
+  /** Method to send the user to the previous page. */
   public void actionBack() {
     Utilities.nextScene(btnBack, "home", "Home - " + Session.getInstance("").getUserName());
   }
 
-  /***
-   *
-   * allows admin to kick member
-   */
+  /** Method called when the group admin kicks a member from the group. */
   public void actionKickMember() {
     String username = listMemberList.getSelectionModel().getSelectedItem().toString();
 
@@ -397,18 +358,14 @@ public class GroupController {
     updateUserMemberList();
   }
 
-  /***
-   *allows admin to remove report
-   */
+  /** Method called when the group admin removes a report from the report list. */
   public void actionRemoveReport() {
     Report.removeReport(groupName, listReportList.getSelectionModel().getSelectedItem().toString());
 
     updateListOfReports();
   }
 
-  /***
-   * Deletes group button
-   */
+  /** Method called when the group admin clicks the delete group button. */
   public void actionDeleteGroup() {
     Alert alert = new Alert(AlertType.CONFIRMATION);
     alert.setHeaderText("Delete Group");
@@ -419,21 +376,20 @@ public class GroupController {
       System.out.println("XXXXX - user exited with X");
     } else if (result.get() == ButtonType.OK) {
       g.deleteGroup(groupName);
-      Utilities.nextScene(btnDeleteGroup, "home", "Home - "
-          + Session.getInstance("").getUserName());
+      Utilities.nextScene(
+          btnDeleteGroup, "home", "Home - " + Session.getInstance("").getUserName());
     } else if (result.get() == ButtonType.CANCEL) {
       System.out.println("XXXXX - user canceled");
     }
   }
 
-  /***
-   * shows the group info i=on the group home screen
-   */
+  /** Method for the group admin to update the text of the group description. */
   public void actionUpdateDescription() {
     Alert alert;
 
     if (txtGroupDescription.getLength() > 0 && txtGroupDescription.getLength() <= 200) {
-      if (!(txtGroupDescription.getText().startsWith(" ") || txtGroupDescription.getText().endsWith(" "))) {
+      if (!(txtGroupDescription.getText().startsWith(" ")
+          || txtGroupDescription.getText().endsWith(" "))) {
         g.setDescription(txtGroupDescription.getText(), groupName);
 
         alert = new Alert(AlertType.CONFIRMATION);
@@ -450,13 +406,12 @@ public class GroupController {
     } else {
       alert = new Alert(AlertType.ERROR);
       alert.setContentText("Description must be between 1 and 200 characters!");
-      alert.show();;
+      alert.show();
+      ;
     }
   }
 
-  /***
-   *admin setting up the tags for the group
-   */
+  /** Method called when the group admin updates the groups search tags. */
   public void actionSaveTags() {
     Alert alert;
 
@@ -491,9 +446,7 @@ public class GroupController {
     }
   }
 
-  /***
-   *lets user leave group
-   */
+  /** Method called when the user clicks the leave group button. */
   public void actionLeaveGroup() {
     String username = Session.getInstance("").getUserName();
     if (g.isUserInGroup(username, groupName)) {
@@ -502,85 +455,69 @@ public class GroupController {
     }
   }
 
-    /***
-     *shows Event description
-     */
+  /** Method called when the group admin edits the groups current event description. */
   public void actionEventDesc() {
     Alert alert;
 
-    if(txtEventDesc.getText().length()<100) {
+    if (txtEventDesc.getText().length() < 100) {
       g.setEventDescription(txtEventDesc.getText(), HomeController.GroupSelect);
       labelEventDescription.setText(txtEventDesc.getText());
       txtEventDesc.clear();
       alert = new Alert(AlertType.CONFIRMATION);
       alert.setContentText("Event description modified!");
       alert.show();
-    }
-    else
-    {
+    } else {
       alert = new Alert(AlertType.ERROR);
       alert.setContentText("Event description can be no longer than 100 char!");
       alert.show();
     }
-
   }
 
-    /***
-     *
-     * shows event title
-     */
+  /** Method for editing the groups current event title. */
   public void actionNameEvent() {
     Alert alert;
 
-    if(txtEventTitle.getText().length()<80) {
+    if (txtEventTitle.getText().length() < 80) {
       g.setEventTitle(txtEventTitle.getText(), HomeController.GroupSelect);
       labelEventName.setText(txtEventTitle.getText());
       txtEventTitle.clear();
       alert = new Alert(AlertType.CONFIRMATION);
       alert.setContentText("Event Title modified!");
       alert.show();
-    }
-    else
-    {
+    } else {
       alert = new Alert(AlertType.ERROR);
       alert.setContentText("Event title can be no longer than 80 char!");
       alert.show();
     }
   }
 
-    /***
-     * creates the event date in group menu
-     */
+  /** Method for editing the groups current event date. */
   public void actionEventDate() {
     Alert alert;
 
-    if(txtEventDate.getText().length()<50) {
+    if (txtEventDate.getText().length() < 50) {
       g.setEventDate(txtEventDate.getText(), HomeController.GroupSelect);
       labelEventDate.setText(txtEventDate.getText());
       txtEventDate.clear();
       alert = new Alert(AlertType.CONFIRMATION);
       alert.setContentText("Event meeting times/date modified!");
       alert.show();
-    }
-    else
-    {
+    } else {
       alert = new Alert(AlertType.ERROR);
       alert.setContentText("Event date can be no longer than 50 char!");
       alert.show();
     }
   }
 
-  /**
-   * Method to RSVP for group events.
-   */
+  /** Method to RSVP for group events. */
   public void actionRSVP() {
     System.out.println("check");
-    if(!g.isRSVP(groupName,Session.getInstance("").getUserName())) {
+    if (!g.isRSVP(groupName, Session.getInstance("").getUserName())) {
       g.setRSVP(groupName);
       setupRSVPList();
     }
 
-    if(!chkRSVP.isSelected()){
+    if (!chkRSVP.isSelected()) {
       g.removeRSVP(groupName);
       setupRSVPList();
     }
